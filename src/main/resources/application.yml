@@ -1,3 +1,16 @@
 spring:
-  profiles:
-    active: prod  # Khi build production thì override giá trị này = prod
+  datasource:
+    url: jdbc:postgresql://dpg-d0c7i6adbo4c73ddc7g0-a.render-database.com:5432/clothes_jtfi
+    driverClassName: org.postgresql.Driver
+    username: tungnt26
+    password: mjccXnuQd7gDaYQLBVnDRDHW1patWaH5
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+  springdoc:
+    api-docs:
+      enabled: true
+    swagger-ui:
+      path: /swagger-ui.html
+    show-actuator: true
