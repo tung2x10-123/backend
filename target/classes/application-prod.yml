@@ -8,15 +8,6 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: update
-  thymeleaf:
-    encoding: UTF-8
-    mode: HTML
-    server:
-      servlet:
-        encoding:
-          force: true
-          charset: UTF-8
-          enabled: true
   springdoc:
     api-docs:
       enabled: true
