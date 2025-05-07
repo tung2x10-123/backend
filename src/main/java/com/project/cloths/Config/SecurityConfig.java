@@ -34,7 +34,7 @@ public class SecurityConfig {
                 .csrf().disable()
                 .authorizeHttpRequests()
 //                .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers("/api/**").permitAll()
+                .requestMatchers("/**").permitAll()
 //                .requestMatchers("/h2-console/**").permitAll()
 //                .requestMatchers("/api/products/**").permitAll()
 //                .requestMatchers("/api/categories/**").permitAll()
