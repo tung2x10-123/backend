@@ -1,11 +1,10 @@
 spring:
   datasource:
-    url: jdbc:postgresql://dpg-d0c7i6adbo4c73ddc7g0-a.render-database.com:5432/clothes_jtfi
+    url: jdbc:postgresql://dpg-d0c7i6adbo4c73ddc7g0-a:5432/clothes_jtfi
     driverClassName: org.postgresql.Driver
     username: tungnt26
     password: mjccXnuQd7gDaYQLBVnDRDHW1patWaH5
   jpa:
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: update
   springdoc:
@@ -14,19 +13,8 @@ spring:
     swagger-ui:
       path: /swagger-ui.html
     show-actuator: true
-  mail:
-    host: sandbox.smtp.mailtrap.io
-    port: 2525
-    username: 0ffe402229024a
-    password: 26216812adb232
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
-  vnpay:
-    tmnCode: YOUR_TMN_CODE
-    hashSecret: YOUR_HASH_SECRET
-    url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
-    returnUrl: http://localhost:8080/api/payment/vnpay/return
+vnpay:
+  tmnCode: YOUR_TMN_CODE
+  hashSecret: YOUR_HASH_SECRET
+  url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
+  returnUrl: http://localhost:8080/api/payment/vnpay/return
