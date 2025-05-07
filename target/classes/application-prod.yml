@@ -14,3 +14,19 @@ spring:
     swagger-ui:
       path: /swagger-ui.html
     show-actuator: true
+  mail:
+    host: sandbox.smtp.mailtrap.io
+    port: 2525
+    username: 0ffe402229024a
+    password: 26216812adb232
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+  vnpay:
+    tmnCode: YOUR_TMN_CODE
+    hashSecret: YOUR_HASH_SECRET
+    url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
+    returnUrl: http://localhost:8080/api/payment/vnpay/return
