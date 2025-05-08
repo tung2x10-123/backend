@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Component
@@ -18,7 +17,6 @@ public class TelegramCallbackHandler {
     private final TelegramNotificationService telegramNotificationService;
     private final OrderService orderService;
     private final ObjectMapper objectMapper;
-    private long lastUpdateId = 0;
 
     @Autowired
     public TelegramCallbackHandler(RestTemplate restTemplate, TelegramNotificationService telegramNotificationService, OrderService orderService) {
@@ -28,58 +26,72 @@ public class TelegramCallbackHandler {
         this.objectMapper = new ObjectMapper();
     }
 
-    public void handleCallback(String botToken, String chatId) {
-        String telegramApiUrl = "https://api.telegram.org/bot" + botToken + "/getUpdates?offset=" + (lastUpdateId + 1);
-
+    public void handleCallback(String botToken, Map<String, Object> callbackQuery, String chatId) {
+        System.out.println("Starting handleCallback with callbackQuery: " + callbackQuery);
         try {
-            Map<String, Object> response = restTemplate.getForObject(telegramApiUrl, Map.class);
-            if (response == null || !response.containsKey("result")) {
-                System.out.println("No updates found from Telegram.");
+            String callbackQueryId = (String) callbackQuery.get("id");
+            System.out.println("Callback query ID: " + callbackQueryId);
+            Map<String, Object> message = (Map<String, Object>) callbackQuery.get("message");
+            System.out.println("Message from callback: " + message);
+            Map<String, Object> chat = (Map<String, Object>) message.get("chat");
+            String callbackChatId = chat.get("id").toString();
+            String callbackData = (String) callbackQuery.get("data");
+
+            System.out.println("Received callback: queryId=" + callbackQueryId + ", chatId=" + callbackChatId + ", data=" + callbackData);
+
+            if (callbackData == null) {
+                System.out.println("Callback data is null, skipping.");
                 return;
             }
 
-            List<Map<String, Object>> updates = (List<Map<String, Object>>) response.get("result");
-            for (Map<String, Object> update : updates) {
-                if (!update.containsKey("callback_query")) {
-                    continue;
-                }
+            if (callbackData.startsWith("confirm_")) {
+                Long orderId = Long.parseLong(callbackData.replace("confirm_", ""));
+                System.out.println("Processing confirm action for orderId: " + orderId);
+                handleConfirmOrder(orderId, callbackChatId);
+            } else if (callbackData.startsWith("cancel_")) {
+                Long orderId = Long.parseLong(callbackData.replace("cancel_", ""));
+                System.out.println("Processing cancel action for orderId: " + orderId);
+                handleCancelOrder(orderId, callbackChatId);
+            } else {
+                System.out.println("Unknown callback data: " + callbackData);
+            }
 
-                long updateId = Long.parseLong(update.get("update_id").toString());
-                if (updateId > lastUpdateId) {
-                    lastUpdateId = updateId;
-                }
-
-                Map<String, Object> callbackQuery = (Map<String, Object>) update.get("callback_query");
-                Map<String, Object> message = (Map<String, Object>) callbackQuery.get("message");
-                String callbackData = (String) callbackQuery.get("data");
-
-                if (callbackData.startsWith("confirm_")) {
-                    Long orderId = Long.parseLong(callbackData.replace("confirm_", ""));
-                    handleConfirmOrder(orderId, chatId);
-                } else if (callbackData.startsWith("cancel_")) {
-                    Long orderId = Long.parseLong(callbackData.replace("cancel_", ""));
-                    handleCancelOrder(orderId, chatId);
-                }
-
-                String callbackQueryId = (String) callbackQuery.get("id");
-                String answerUrl = "https://api.telegram.org/bot" + botToken + "/answerCallbackQuery?callback_query_id=" + callbackQueryId;
+            String answerUrl = "https://api.telegram.org/bot" + botToken + "/answerCallbackQuery";
+            System.out.println("Preparing to answer callback with URL: " + answerUrl);
+            int retryCount = 0;
+            boolean answered = false;
+            while (retryCount < 3 && !answered) {
                 try {
-                    restTemplate.getForObject(answerUrl, String.class);
+                    Map<String, Object> answerRequest = new HashMap<>();
+                    answerRequest.put("callback_query_id", callbackQueryId);
+                    answerRequest.put("text", "Đã xử lý yêu cầu của bạn!");
+                    answerRequest.put("show_alert", false);
+                    System.out.println("Sending answerCallbackQuery request: " + answerRequest);
+                    restTemplate.postForObject(answerUrl, answerRequest, String.class);
+                    System.out.println("Successfully answered callback queryId: " + callbackQueryId);
+                    answered = true;
                 } catch (Exception e) {
-                    System.out.println("Failed to answer callback query (possibly too old): " + e.getMessage());
+                    retryCount++;
+                    System.out.println("Failed to answer callback queryId " + callbackQueryId + " (attempt " + retryCount + "): " + e.getMessage());
+                    if (retryCount == 3) {
+                        System.out.println("Max retries reached for callback queryId " + callbackQueryId);
+                    }
+                    Thread.sleep(1000);
                 }
             }
         } catch (Exception e) {
-            System.out.println("Failed to handle Telegram callback: " + e.getMessage());
+            System.out.println("Error processing callback: " + e.getMessage());
         }
     }
 
     private void handleConfirmOrder(Long orderId, String chatId) {
         try {
+            System.out.println("Starting to confirm order: " + orderId);
             Map<String, Object> statusRequest = new HashMap<>();
             statusRequest.put("status", "SHIPPED");
             orderService.updateOrderStatus(orderId, statusRequest);
-            // Không gửi thông báo ở đây nữa, để OrderServiceImpl xử lý
+            System.out.println("Confirmed order: " + orderId + " successfully");
+            telegramNotificationService.sendNotification("✅ Đã xác nhận đơn hàng " + orderId + "!");
         } catch (Exception e) {
             System.out.println("Failed to confirm order " + orderId + ": " + e.getMessage());
             telegramNotificationService.sendNotification("❌ Lỗi khi xác nhận đơn hàng " + orderId + ": " + e.getMessage());
@@ -88,10 +100,12 @@ public class TelegramCallbackHandler {
 
     private void handleCancelOrder(Long orderId, String chatId) {
         try {
+            System.out.println("Starting to cancel order: " + orderId);
             Map<String, Object> statusRequest = new HashMap<>();
             statusRequest.put("status", "CANCELLED");
             orderService.updateOrderStatus(orderId, statusRequest);
-            // Không gửi thông báo ở đây nữa, để OrderServiceImpl xử lý
+            System.out.println("Cancelled order: " + orderId + " successfully");
+            telegramNotificationService.sendNotification("❌ Đã hủy đơn hàng " + orderId + "!");
         } catch (Exception e) {
             System.out.println("Failed to cancel order " + orderId + ": " + e.getMessage());
             telegramNotificationService.sendNotification("❌ Lỗi khi hủy đơn hàng " + orderId + ": " + e.getMessage());

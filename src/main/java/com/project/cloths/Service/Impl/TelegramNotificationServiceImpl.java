@@ -37,13 +37,15 @@ public class TelegramNotificationServiceImpl implements TelegramNotificationServ
     public void sendNotificationWithButtons(String message, Long orderId, OrderStatus orderStatus) {
         List<TelegramConfig> configs = telegramConfigRepository.findAll();
         if (configs.isEmpty()) {
-            System.out.println("No Telegram configurations found in database. Skipping notification: " + message);
+            System.out.println("No Telegram configs found. Skipping: " + message);
             return;
         }
 
         for (TelegramConfig config : configs) {
             String chatId = config.getChatId();
-            String telegramApiUrl = "https://api.telegram.org/bot" + config.getBotToken() + "/sendMessage";
+            String botToken = config.getBotToken();
+            String telegramApiUrl = "https://api.telegram.org/bot" + botToken + "/sendMessage";
+            System.out.println("Preparing to send notification to chatId " + chatId + " with botToken " + botToken);
             try {
                 Map<String, Object> telegramRequest = new HashMap<>();
                 telegramRequest.put("chat_id", chatId);
@@ -76,15 +78,20 @@ public class TelegramNotificationServiceImpl implements TelegramNotificationServ
                         Map<String, Object> replyMarkup = new HashMap<>();
                         replyMarkup.put("inline_keyboard", inlineKeyboard);
 
-                        String replyMarkupJson = objectMapper.writeValueAsString(replyMarkup);
-                        telegramRequest.put("reply_markup", replyMarkupJson);
+                        telegramRequest.put("reply_markup", replyMarkup);
                     }
                 }
 
-                restTemplate.postForObject(telegramApiUrl, telegramRequest, String.class);
-                System.out.println("Telegram notification sent to chatId=" + chatId + ": " + message);
+                System.out.println("Sending notification request: " + telegramRequest);
+                String response = restTemplate.postForObject(telegramApiUrl, telegramRequest, String.class);
+                System.out.println("Notification response: " + response);
+                if (response != null && response.contains("\"ok\":true")) {
+                    System.out.println("Sent notification to chatId " + chatId + " successfully: " + message);
+                } else {
+                    System.out.println("Failed to send notification to chatId " + chatId + ". Response: " + response);
+                }
             } catch (Exception e) {
-                System.out.println("Failed to send Telegram notification to chatId=" + chatId + ": " + e.getMessage());
+                System.out.println("Failed to send to chatId " + chatId + ": " + e.getMessage());
             }
         }
     }
@@ -93,19 +100,21 @@ public class TelegramNotificationServiceImpl implements TelegramNotificationServ
     public void sendNotificationWithPhoto(String message, String photoUrl, Long orderId, OrderStatus orderStatus) {
         List<TelegramConfig> configs = telegramConfigRepository.findAll();
         if (configs.isEmpty()) {
-            System.out.println("No Telegram configurations found in database. Skipping notification: " + message);
+            System.out.println("No Telegram configs found. Skipping: " + message);
             return;
         }
 
         if (photoUrl == null || photoUrl.isEmpty() || !photoUrl.startsWith("http")) {
-            System.out.println("Invalid photoUrl: " + photoUrl + ". Falling back to sendNotificationWithButtons.");
+            System.out.println("Invalid photoUrl " + photoUrl + ". Falling back.");
             sendNotificationWithButtons(message, orderId, orderStatus);
             return;
         }
 
         for (TelegramConfig config : configs) {
             String chatId = config.getChatId();
-            String telegramApiUrl = "https://api.telegram.org/bot" + config.getBotToken() + "/sendPhoto";
+            String botToken = config.getBotToken();
+            String telegramApiUrl = "https://api.telegram.org/bot" + botToken + "/sendPhoto";
+            System.out.println("Preparing to send photo notification to chatId " + chatId + " with botToken " + botToken);
             try {
                 Map<String, Object> telegramRequest = new HashMap<>();
                 telegramRequest.put("chat_id", chatId);
@@ -139,15 +148,20 @@ public class TelegramNotificationServiceImpl implements TelegramNotificationServ
                         Map<String, Object> replyMarkup = new HashMap<>();
                         replyMarkup.put("inline_keyboard", inlineKeyboard);
 
-                        String replyMarkupJson = objectMapper.writeValueAsString(replyMarkup);
-                        telegramRequest.put("reply_markup", replyMarkupJson);
+                        telegramRequest.put("reply_markup", replyMarkup);
                     }
                 }
 
-                restTemplate.postForObject(telegramApiUrl, telegramRequest, String.class);
-                System.out.println("Telegram photo notification sent to chatId=" + chatId + " with photoUrl=" + photoUrl + ": " + message);
+                System.out.println("Sending photo notification request: " + telegramRequest);
+                String response = restTemplate.postForObject(telegramApiUrl, telegramRequest, String.class);
+                System.out.println("Photo notification response: " + response);
+                if (response != null && response.contains("\"ok\":true")) {
+                    System.out.println("Sent photo to chatId " + chatId + " successfully with " + photoUrl + ": " + message);
+                } else {
+                    System.out.println("Failed to send photo to chatId " + chatId + ". Response: " + response);
+                }
             } catch (Exception e) {
-                System.out.println("Failed to send Telegram photo notification to chatId=" + chatId + " with photoUrl=" + photoUrl + ": " + e.getMessage());
+                System.out.println("Failed to send photo to chatId " + chatId + " with " + photoUrl + ": " + e.getMessage());
                 sendNotificationWithButtons(message, orderId, orderStatus);
             }
         }

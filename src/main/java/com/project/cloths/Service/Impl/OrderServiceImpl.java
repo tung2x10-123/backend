@@ -28,7 +28,7 @@ public class OrderServiceImpl implements OrderService {
     private TelegramNotificationService telegramNotificationService;
 
     @Autowired
-    private ApplicationEventPublisher eventPublisher; // Thêm để phát event
+    private ApplicationEventPublisher eventPublisher;
 
     @Override
     public List<Order> getAllOrders() {
@@ -139,7 +139,6 @@ public class OrderServiceImpl implements OrderService {
             telegramNotificationService.sendNotificationWithButtons(message, savedOrder.getId(), savedOrder.getStatus());
         }
 
-        // Phát event sau khi tạo đơn hàng mới
         eventPublisher.publishEvent(new OrderStatusChangedEvent(this));
 
         Map<String, Object> responseData = new HashMap<>();
@@ -187,6 +186,7 @@ public class OrderServiceImpl implements OrderService {
     public void updateOrderStatus(Long orderId, Map<String, Object> statusRequest) throws Exception {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found with id: " + orderId));
+        System.out.println("Updating order " + orderId + ", current status: " + order.getStatus());
 
         String newStatusStr = (String) statusRequest.get("status");
         OrderStatus newStatus;
@@ -200,6 +200,7 @@ public class OrderServiceImpl implements OrderService {
             throw new RuntimeException("Cannot transition from " + order.getStatus().name() + " to " + newStatus.name());
         }
 
+        System.out.println("Attempting to update order " + orderId + " to status: " + newStatus);
         order.setStatus(newStatus);
 
         OrderStatusHistory history = new OrderStatusHistory();
@@ -209,6 +210,7 @@ public class OrderServiceImpl implements OrderService {
         order.getStatusHistory().add(history);
 
         orderRepository.save(order);
+        System.out.println("Successfully updated order " + orderId + " to status: " + newStatus);
 
         String message;
         if (newStatus == OrderStatus.SHIPPED) {
@@ -227,8 +229,8 @@ public class OrderServiceImpl implements OrderService {
                     "--------------------";
         }
         telegramNotificationService.sendNotificationWithButtons(message, orderId, newStatus);
+        System.out.println("Sent notification for order " + orderId + " with status: " + newStatus);
 
-        // Phát event sau khi cập nhật trạng thái
         eventPublisher.publishEvent(new OrderStatusChangedEvent(this));
     }
 
