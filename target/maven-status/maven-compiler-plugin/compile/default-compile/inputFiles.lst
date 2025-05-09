@@ -11,6 +11,8 @@ C:\Users\tungnt26\Desktop\demo\src\main\java\com\project\cloths\Controller\Order
 C:\Users\tungnt26\Desktop\demo\src\main\java\com\project\cloths\Controller\PaymentController.java
 C:\Users\tungnt26\Desktop\demo\src\main\java\com\project\cloths\Controller\ProductController.java
 C:\Users\tungnt26\Desktop\demo\src\main\java\com\project\cloths\Controller\TelegramConfigController.java
+C:\Users\tungnt26\Desktop\demo\src\main\java\com\project\cloths\Controller\TelegramWebhookController.java
+C:\Users\tungnt26\Desktop\demo\src\main\java\com\project\cloths\Controller\UptimeController.java
 C:\Users\tungnt26\Desktop\demo\src\main\java\com\project\cloths\Controller\UserController.java
 C:\Users\tungnt26\Desktop\demo\src\main\java\com\project\cloths\DemoApplication.java
 C:\Users\tungnt26\Desktop\demo\src\main\java\com\project\cloths\Dto\ForgotPasswordRequest.java
@@ -50,10 +52,9 @@ C:\Users\tungnt26\Desktop\demo\src\main\java\com\project\cloths\Service\Impl\Ord
 C:\Users\tungnt26\Desktop\demo\src\main\java\com\project\cloths\Service\Impl\PaymentServiceImpl.java
 C:\Users\tungnt26\Desktop\demo\src\main\java\com\project\cloths\Service\Impl\ProductServiceImpl.java
 C:\Users\tungnt26\Desktop\demo\src\main\java\com\project\cloths\Service\Impl\TelegramCallbackHandler.java
-C:\Users\tungnt26\Desktop\demo\src\main\java\com\project\cloths\Service\Impl\TelegramCallbackScheduler.java
-C:\Users\tungnt26\Desktop\demo\src\main\java\com\project\cloths\Service\Impl\TelegramChatbotScheduler.java
 C:\Users\tungnt26\Desktop\demo\src\main\java\com\project\cloths\Service\Impl\TelegramChatbotServiceImpl.java
 C:\Users\tungnt26\Desktop\demo\src\main\java\com\project\cloths\Service\Impl\TelegramNotificationServiceImpl.java
+C:\Users\tungnt26\Desktop\demo\src\main\java\com\project\cloths\Service\Impl\TelegramUpdateScheduler.java
 C:\Users\tungnt26\Desktop\demo\src\main\java\com\project\cloths\Service\Impl\UserServiceImpl.java
 C:\Users\tungnt26\Desktop\demo\src\main\java\com\project\cloths\Service\OrderService.java
 C:\Users\tungnt26\Desktop\demo\src\main\java\com\project\cloths\Service\PaymentService.java

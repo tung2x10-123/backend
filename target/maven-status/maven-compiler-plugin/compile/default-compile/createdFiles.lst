@@ -3,7 +3,6 @@ com\project\cloths\Service\Impl\TelegramNotificationServiceImpl.class
 com\project\cloths\Dto\ForgotPasswordRequest$Header.class
 com\project\cloths\Exception\GlobalExceptionHandler.class
 com\project\cloths\Config\SecurityConfig.class
-com\project\cloths\Service\Impl\TelegramChatbotScheduler.class
 com\project\cloths\Controller\ChatbotController.class
 com\project\cloths\Service\Impl\OrderServiceImpl.class
 com\project\cloths\Util\JWTUtil.class
@@ -58,7 +57,6 @@ com\project\cloths\repository\CategoryRepository.class
 com\project\cloths\Service\PaymentService.class
 com\project\cloths\Entity\User.class
 com\project\cloths\Service\AuthService.class
-com\project\cloths\Service\Impl\TelegramCallbackScheduler.class
 com\project\cloths\Controller\AuthController.class
 com\project\cloths\Service\Impl\TelegramChatbotServiceImpl.class
 com\project\cloths\Service\Impl\AuthServiceImpl.class

@@ -8,7 +8,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import jakarta.annotation.PostConstruct; // Sửa từ javax sang jakarta
+import jakarta.annotation.PostConstruct;
 import java.util.List;
 import java.util.Map;
 
@@ -26,9 +26,38 @@ public class TelegramUpdateScheduler {
 
     private boolean webhookSet = false;
 
-    @PostConstruct // Sử dụng jakarta.annotation.PostConstruct
+    @PostConstruct
     public void init() {
-        setWebhook();
+        deleteWebhook(); // Xóa webhook cũ trước
+        setWebhook(); // Set webhook mới
+    }
+
+    private void deleteWebhook() {
+        List<TelegramConfig> configs = telegramConfigRepository.findAll();
+        if (configs.isEmpty()) {
+            System.out.println("No Telegram configs found in database.");
+            return;
+        }
+
+        TelegramConfig config = configs.get(0);
+        String botToken = config.getBotToken();
+        if (botToken == null || botToken.isEmpty()) {
+            System.out.println("Bot token not found in TelegramConfig.");
+            return;
+        }
+
+        String deleteWebhookUrl = "https://api.telegram.org/bot" + botToken + "/deleteWebhook";
+        try {
+            Map<String, Object> response = restTemplate.getForObject(deleteWebhookUrl, Map.class);
+            System.out.println("Delete webhook response: " + response);
+            if (response != null && (Boolean) response.get("ok")) {
+                System.out.println("Webhook deleted successfully.");
+            } else {
+                System.out.println("Failed to delete webhook.");
+            }
+        } catch (Exception e) {
+            System.out.println("Failed to delete webhook: " + e.getMessage());
+        }
     }
 
     private void setWebhook() {
