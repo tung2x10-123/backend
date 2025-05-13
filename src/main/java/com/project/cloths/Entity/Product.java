@@ -1,7 +1,5 @@
 package com.project.cloths.Entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -20,18 +18,15 @@ public class Product {
     private String description;
     private double price;
     private String imageUrl;
-    private String material; // thêm
+    private String material;
     private int stock;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JsonIgnore
-    @JoinColumn(name = "category_id", referencedColumnName = "id")
-//    @JsonManagedReference
-    private Category category;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "category_id", referencedColumnName = "id")
+    private Category category; // Bỏ @JsonBackReference, để tự nhiên serialize
 
     @Override
     public String toString() {
         return "Product{id=" + id + ", name='" + name + "', price=" + price + "}";
     }
 }
-

@@ -1,6 +1,5 @@
 package com.project.cloths.Entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
@@ -19,9 +18,8 @@ public class Category {
     private Long id;
     private String name;
 
-    @OneToMany(mappedBy = "category")
-//    @JsonBackReference
-    @JsonIgnore
+    @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
+    @JsonIgnore // Ngăn serialize products khi lấy Product
     private List<Product> products;
 
     @Override
