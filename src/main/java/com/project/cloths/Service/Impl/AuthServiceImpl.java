@@ -99,7 +99,7 @@ public class AuthServiceImpl implements AuthService {
 
     private void sendResetEmail(String email, String token) {
         try {
-            String resetUrl = "http://localhost:8080/api/auth/reset-password?token=" + token;
+            String resetUrl = "https://workshopclothes.netlify.app/reset-password?token=" + token;
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true);
             helper.setFrom("hello@demomailtrap.co");
