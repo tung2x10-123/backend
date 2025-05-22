@@ -1,4 +1,18 @@
 spring:
+  mail:
+    host: sandbox.smtp.mailtrap.io
+    port: 2525
+    username: 0ffe402229024a
+    password: 26216812adb232
+    protocol: smtp # Thêm protocol
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          ssl:
+            trust: sandbox.smtp.mailtrap.io # Thêm để đảm bảo kết nối
   datasource:
     url: jdbc:h2:file:./data/clothing_store
     driverClassName: org.h2.Driver

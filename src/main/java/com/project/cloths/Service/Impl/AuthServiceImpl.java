@@ -14,7 +14,6 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -31,17 +30,13 @@ public class AuthServiceImpl implements AuthService {
     @Autowired
     private JWTUtil jwtUtil;
 
+    @Autowired
+    private JavaMailSender mailSender; // Inject bằng @Autowired
+
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-
-    private final JavaMailSender mailSender;
-
-    public AuthServiceImpl(JavaMailSender mailSender) {
-        this.mailSender = mailSender;
-    }
 
     @Override
     public ResponseEntity<ResponseModel> register(RequestModel request) {
-//        Map<String, Object> bodyData = getRequestBody(request);
         Map<String, Object> bodyData = request.getBody();
         String username = (String) bodyData.get("username");
         String email = (String) bodyData.get("email");
@@ -61,35 +56,28 @@ public class AuthServiceImpl implements AuthService {
         return buildSuccessResponse("User registered successfully!");
     }
 
+    @Override
+    public ResponseEntity<ResponseModel> login(RequestModel request) {
+        Map<String, Object> bodyData = request.getBody();
 
-@Override
-public ResponseEntity<ResponseModel> login(RequestModel request) {
-    Map<String, Object> bodyData = request.getBody();
+        String username = (String) bodyData.get("username");
+        String email = (String) bodyData.get("email");
+        String password = (String) bodyData.get("password");
 
-    // Lấy email và password từ request body
-    String username = (String) bodyData.get("username");
-    String email = (String) bodyData.get("email");
-    String password = (String) bodyData.get("password");
+        if (email == null || password == null) {
+            return buildErrorResponse("400", "Email or password cannot be null!", "XTIERR00090", "REQUEST");
+        }
 
-    if (email == null || password == null) {
-        return buildErrorResponse("400", "Email or password cannot be null!", "XTIERR00090", "REQUEST");
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            return buildErrorResponse("401", "Invalid credentials!", "XTIERR00089", "AUTH");
+        }
+
+        String token = jwtUtil.generateToken(email);
+        return buildSuccessResponse(token);
     }
-
-    User user = userRepository.findByEmail(email)
-            .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
-
-
-    // Kiểm tra mật khẩu có hợp lệ không
-    if (!passwordEncoder.matches(password, user.getPassword())) {
-        return buildErrorResponse("401", "Invalid credentials!", "XTIERR00089", "AUTH");
-    }
-
-    // Tạo token JWT
-    String token = jwtUtil.generateToken(email);
-
-    return buildSuccessResponse(token);
-}
-
 
     @Override
     public void forgotPassword(String email) {

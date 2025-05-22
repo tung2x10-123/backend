@@ -1,4 +1,18 @@
 spring:
+  mail:
+    host: live.smtp.mailtrap.io
+    port: 587
+    username: smtp@mailtrap.io
+    password: 2638d88aefa8641d0e568925667a9308
+    protocol: smtp # Thêm protocol
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          ssl:
+            trust: sandbox.smtp.mailtrap.io # Thêm để đảm bảo kết nối
   datasource:
     url: jdbc:postgresql://dpg-d0c7i6adbo4c73ddc7g0-a:5432/clothes_jtfi
     driverClassName: org.postgresql.Driver
