@@ -107,7 +107,11 @@ public class AuthServiceImpl implements AuthService {
             helper.setText("Click vào đường link sau để đặt lại mật khẩu: " + resetUrl);
             mailSender.send(message);
         } catch (MessagingException e) {
-            throw new RuntimeException("Failed to send email");
+            // Log chi tiết lỗi
+            throw new RuntimeException("Failed to send email: " + e.getMessage(), e);
+        } catch (Exception e) {
+            // Bắt lỗi bất ngờ
+            throw new RuntimeException("Unexpected error: " + e.getMessage(), e);
         }
     }
 

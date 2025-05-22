@@ -17,7 +17,6 @@ public class MailConfig {
     private String username;
     private String password;
 
-    // Setter để Spring bind từ application.yml
     public void setHost(String host) {
         this.host = host;
     }
@@ -45,7 +44,12 @@ public class MailConfig {
         Properties props = mailSender.getJavaMailProperties();
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.starttls.enable", "true");
-        props.put("mail.smtp.ssl.trust", host); // Thêm để kết nối an toàn
+        props.put("mail.smtp.starttls.required", "true"); // Đảm bảo STARTTLS bắt buộc
+        props.put("mail.smtp.ssl.trust", host);
+        props.put("mail.smtp.connectiontimeout", "5000");
+        props.put("mail.smtp.timeout", "5000");
+        props.put("mail.smtp.writetimeout", "5000");
+        props.put("mail.debug", "true"); // Bật debug để log chi tiết
 
         return mailSender;
     }

@@ -11,8 +11,9 @@ spring:
           auth: true
           starttls:
             enable: true
+            required: true
           ssl:
-            trust: sandbox.smtp.mailtrap.io # Thêm để đảm bảo kết nối
+            trust: live.smtp.mailtrap.io # Thêm để đảm bảo kết nối
   datasource:
     url: jdbc:postgresql://dpg-d0c7i6adbo4c73ddc7g0-a:5432/clothes_jtfi
     driverClassName: org.postgresql.Driver
@@ -34,3 +35,8 @@ vnpay:
   returnUrl: http://localhost:8080/api/payment/vnpay/return
 server:
   base-url: https://backend-xutc.onrender.com
+logging:
+  level:
+    root: INFO
+    org.springframework.mail: DEBUG
+    org.eclipse.angus.mail: DEBUG
