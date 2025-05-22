@@ -49,6 +49,7 @@ public class MailConfig {
         props.put("mail.smtp.connectiontimeout", "5000");
         props.put("mail.smtp.timeout", "5000");
         props.put("mail.smtp.writetimeout", "5000");
+        props.put("mail.smtp.from", "hello@demomailtrap.co");
         props.put("mail.debug", "true"); // Bật debug để log chi tiết
 
         return mailSender;
