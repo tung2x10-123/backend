@@ -7,6 +7,8 @@ import com.project.cloths.Service.AuthService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @CrossOrigin(origins = "http://localhost:4200")// Cho phép React gọi API
 @RestController
 @RequestMapping("/api/auth")
@@ -29,16 +31,25 @@ public class AuthController {
     }
 
     @PostMapping("/forgot-password")
-    public ResponseEntity<String> forgotPassword(@RequestBody ForgotPasswordRequest request) {
+    public ResponseEntity<ResponseModel> forgotPassword(@RequestBody ForgotPasswordRequest request) {
         if (request == null || request.getBody() == null || request.getBody().getEmail() == null) {
-            return ResponseEntity.badRequest().body("Email is required");
+            return ResponseEntity.badRequest().body(new ResponseModel(
+                    Map.of("error_code", "400", "error_desc", "Email is required"),
+                    Map.of("ErrorMess", "Email is required")
+            ));
         }
         String email = request.getBody().getEmail();
         try {
             authService.forgotPassword(email);
-            return ResponseEntity.ok("Password reset email sent");
+            return ResponseEntity.ok(new ResponseModel(
+                    Map.of("error_code", "00", "error_desc", "Success"),
+                    Map.of("Result", "Password reset email sent")
+            ));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Failed to send password reset email: " + e.getMessage());
+            return ResponseEntity.badRequest().body(new ResponseModel(
+                    Map.of("error_code", "500", "error_desc", "Failed to send email"),
+                    Map.of("ErrorMess", "Failed to send password reset email: " + e.getMessage())
+            ));
         }
     }
 
