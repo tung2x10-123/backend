@@ -102,6 +102,7 @@ public class AuthServiceImpl implements AuthService {
             String resetUrl = "http://localhost:8080/api/auth/reset-password?token=" + token;
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true);
+            helper.setFrom("hello@demomailtrap.co");
             helper.setTo(email);
             helper.setSubject("Password Reset Request");
             helper.setText("Click vào đường link sau để đặt lại mật khẩu: " + resetUrl);
