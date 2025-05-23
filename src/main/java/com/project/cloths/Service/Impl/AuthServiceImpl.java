@@ -127,8 +127,10 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public void resetPassword(String token, String newPassword) {
+        logger.info("Attempting to reset password with token: {}", token);
         try {
             Optional<User> userOptional = userRepository.findByResetToken(token);
+            logger.debug("Found user for token {}: {}", token, userOptional.isPresent() ? userOptional.get() : "null");
             if (userOptional.isPresent()) {
                 User user = userOptional.get();
                 user.setPassword(passwordEncoder.encode(newPassword));
