@@ -4,6 +4,8 @@ import com.project.cloths.Dto.ForgotPasswordRequest;
 import com.project.cloths.Model.RequestModel;
 import com.project.cloths.Model.ResponseModel;
 import com.project.cloths.Service.AuthService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,6 +16,7 @@ import java.util.Map;
 @RequestMapping("/api/auth")
 public class AuthController {
 
+    private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
     private final AuthService authService;
 
     public AuthController(AuthService authService) {
@@ -53,9 +56,31 @@ public class AuthController {
         }
     }
 
-    @PostMapping("/reset-password")
-    public ResponseEntity<String> resetPassword(@RequestParam String token, @RequestParam String newPassword) {
+//    @PostMapping("/reset-password")
+//    public ResponseEntity<String> resetPassword(@RequestParam String token, @RequestParam String newPassword) {
+//        authService.resetPassword(token, newPassword);
+//        return ResponseEntity.ok("Password has been reset successfully");
+//    }
+@PostMapping("/reset-password")
+public ResponseEntity<ResponseModel> resetPassword(@RequestParam String token, @RequestParam String newPassword) {
+    try {
         authService.resetPassword(token, newPassword);
-        return ResponseEntity.ok("Password has been reset successfully");
+        return ResponseEntity.ok(new ResponseModel(
+                Map.of("error_code", "00", "error_desc", "Success"),
+                Map.of("Result", "Password has been reset successfully")
+        ));
+    } catch (RuntimeException e) {
+        logger.error("Error in reset-password for token {}: {}", token, e.getMessage(), e);
+        return ResponseEntity.badRequest().body(new ResponseModel(
+                Map.of("error_code", "400", "error_desc", "Invalid request"),
+                Map.of("ErrorMess", e.getMessage())
+        ));
+    } catch (Exception e) {
+        logger.error("Unexpected error in reset-password for token {}: {}", token, e.getMessage(), e);
+        return ResponseEntity.status(500).body(new ResponseModel(
+                Map.of("error_code", "500", "error_desc", "Internal Server Error"),
+                Map.of("ErrorMess", "Unexpected error occurred")
+        ));
     }
+}
 }

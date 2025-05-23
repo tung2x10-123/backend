@@ -40,3 +40,4 @@ logging:
     root: INFO
     org.springframework.mail: DEBUG
     org.eclipse.angus.mail: DEBUG
+    com.project.cloths: DEBUG

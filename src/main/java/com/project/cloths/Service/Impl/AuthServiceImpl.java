@@ -8,6 +8,8 @@ import com.project.cloths.Util.JWTUtil;
 import com.project.cloths.repository.UserRepository;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -24,6 +26,7 @@ import java.util.UUID;
 @Service
 public class AuthServiceImpl implements AuthService {
 
+    private static final Logger logger = LoggerFactory.getLogger(AuthServiceImpl.class);
     @Autowired
     private UserRepository userRepository;
 
@@ -93,7 +96,13 @@ public class AuthServiceImpl implements AuthService {
         User user = userOptional.get();
         String token = UUID.randomUUID().toString();
         user.setResetToken(token);
-        userRepository.save(user);
+        try {
+            userRepository.save(user);
+            logger.info("Successfully saved reset token for email {}: {}", email, token);
+        } catch (Exception e) {
+            logger.error("Failed to save reset token for email {}: {}", email, e.getMessage(), e);
+            throw new RuntimeException("Failed to save reset token");
+        }
         sendResetEmail(user.getEmail(), token);
     }
 
