@@ -127,14 +127,21 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public void resetPassword(String token, String newPassword) {
-        Optional<User> userOptional = userRepository.findByResetToken(token);
-        if (userOptional.isPresent()) {
-            User user = userOptional.get();
-            user.setPassword(passwordEncoder.encode(newPassword));
-            user.setResetToken(null);
-            userRepository.save(user);
-        } else {
-            throw new RuntimeException("Invalid or expired reset token");
+        try {
+            Optional<User> userOptional = userRepository.findByResetToken(token);
+            if (userOptional.isPresent()) {
+                User user = userOptional.get();
+                user.setPassword(passwordEncoder.encode(newPassword));
+                user.setResetToken(null);
+                userRepository.save(user);
+                logger.info("Successfully reset password for token: {}", token);
+            } else {
+                logger.error("Invalid or expired reset token: {}", token);
+                throw new RuntimeException("Invalid or expired reset token");
+            }
+        } catch (Exception e) {
+            logger.error("Error in resetPassword for token {}: {}", token, e.getMessage(), e);
+            throw e;
         }
     }
 
