@@ -48,7 +48,7 @@ public class User {
         return resetToken;
     }
 
-    public void setResetToken(String role) {
+    public void setResetToken(String resetToken) {
         this.resetToken = resetToken;
     }
 }
